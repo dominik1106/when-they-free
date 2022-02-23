@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 class UserBase(BaseModel):
     email: str
-    mongo_id: bytes
+    mongo_id: str
 
 class UserCreate(UserBase):
     password: str
