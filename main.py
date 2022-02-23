@@ -1,5 +1,6 @@
-from fastapi import FastAPI
-import user_crud, models, schemas
+from fastapi import Depends, FastAPI
+from sqlalchemy.orm import Session
+import crud_user, models, schemas
 from database import SessionLocal, engine
 
 
@@ -20,3 +21,7 @@ def get_db():
 @app.get('/')
 async def root():
     return {'message': 'Hello World!'}
+
+@app.post('/create-user')
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    return crud_user.create_user(db=db, user=user)
