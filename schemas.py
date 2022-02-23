@@ -7,9 +7,14 @@ class UserCreate(UserBase):
     password: str
 
 class User(UserBase):
-    id: int
     hashed_password: str
-    uuid: str
+    id: str
+
+    class Config:
+        orm_mode = True
+
+class UserLite(UserBase):
+    id: str
 
     class Config:
         orm_mode = True
