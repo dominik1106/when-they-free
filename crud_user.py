@@ -13,10 +13,10 @@ def create_user(db: Session, user: schemas.UserCreate):
     #TODO: Password hash implementation
     hsh_pwd = user.password + 'Bcrypt Hash'
     uuid_4 = uuid4().hex
+    
     db_user = models.User(email=user.email, id=uuid_4, hashed_password=hsh_pwd)
-
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return_user = {db_user.email, db_user.id}
-    return db_user #Prob exclude the pwd here
+
+    return schemas.User(email=db_user.email, id=db_user.id)

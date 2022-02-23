@@ -22,6 +22,6 @@ def get_db():
 async def root():
     return {'message': 'Hello World!'}
 
-@app.post('/create-user')
+@app.post('/create-user', response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud_user.create_user(db=db, user=user)

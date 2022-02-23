@@ -6,14 +6,14 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
-class User(UserBase):
+class UserFull(UserBase):
     hashed_password: str
     id: str
 
     class Config:
         orm_mode = True
 
-class UserLite(UserBase):
+class User(UserBase):
     id: str
 
     class Config:
