@@ -37,3 +37,9 @@ def get_schedule(schedule_id):
 @app.post('/create-schedule', response_model=crud_schedule.Schedule)
 def create_post(owner: str):
     return crud_schedule.create_schedule(owner=owner)
+
+@app.put('/schedule/{schedule_id}')
+def update_schedule(schedule_id: str, participant: Participant):
+    print('test')
+    result = crud_schedule.update_schedule(schedule_id=schedule_id, participant=participant)
+    return {'Message': 'Updated'}

@@ -2,7 +2,7 @@ from unittest import result
 from mongodb_schedule import collection
 from fastapi.encoders import jsonable_encoder
 from schemas_schedule import Schedule, Participant, TimeFrame
-
+import schemas_schedule
 
 def get_schedule(schedule_id: str):
     #This returns a regular python dict
@@ -16,7 +16,7 @@ def get_schedule(schedule_id: str):
 def create_schedule(owner: str):
     schedule = Schedule(owner_id=owner)
     owner_participant = Participant(participant_id=owner, busy_times=[])
-    schedule.participants.append(Participant(participant_id=owner, busy_times=[])) #Automatically add Owner as a participant
+    schedule.participants.append(owner_participant) #Automatically add Owner as a participant
     schedule_json = jsonable_encoder(schedule)
 
     collection.insert_one(schedule_json)
@@ -29,4 +29,15 @@ def update_schedule(schedule_id: str, participant: Participant):
         schedule = Schedule(**result)
         for p in schedule.participants:
             if p.participant_id == participant.participant_id:
+                print('found the right participant!')
                 p.busy_times = participant.busy_times
+
+        schedule = schemas_schedule.combinedTimes(schedule=schedule)
+
+        schedule = jsonable_encoder(schedule)
+        print(schedule)
+        collection.update_one({'_id': schedule_id}, {'$set': schedule})
+        return 'success'
+    
+    else: #TODO Error handling
+        raise 404
