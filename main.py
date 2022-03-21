@@ -1,10 +1,13 @@
 from typing import Optional
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 import crud_user, models, schemas
 from database import SessionLocal, engine
 import mongodb_schedule, crud_schedule
 from crud_schedule import Participant, create_schedule
+from fastapi.security import OAuth2PasswordRequestForm
+
+from security import authenticate_user, create_JWT
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -43,3 +46,15 @@ def update_schedule(schedule_id: str, participant: Participant):
     print('test')
     result = crud_schedule.update_schedule(schedule_id=schedule_id, participant=participant)
     return {'Message': 'Updated'}
+
+@app.post('/login')
+async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user: schemas.User = authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_JWT(data={'sub': user.id})
+    return {'access_token': access_token, 'token_type': "bearer"}
