@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 import models, schemas
 from uuid import uuid4
+from security import hash_password
 
 
 def get_user(db: Session, uuid: str):
@@ -11,7 +12,7 @@ def get_user_by_email(db: Session, email: str):
 
 def create_user(db: Session, user: schemas.UserCreate):
     #TODO: Password hash implementation
-    hsh_pwd = user.password + 'Bcrypt Hash'
+    hsh_pwd = hash_password(user.password)
     uuid_4 = uuid4().hex
     
     db_user = models.User(email=user.email, id=uuid_4, hashed_password=hsh_pwd)
