@@ -1,7 +1,11 @@
 from sqlalchemy.orm import Session
-import models, schemas
 from uuid import uuid4
-from security import hash_password
+from passlib.context import CryptContext
+from . import models, schemas
+
+pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+def hash_password(password):
+    return pwd_context.hash(password)
 
 
 def get_user(db: Session, uuid: str):
