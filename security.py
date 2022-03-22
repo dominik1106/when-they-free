@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from sqlalchemy import false
+from sqlalchemy.orm import Session
 import crud_user
 
 load_dotenv()
