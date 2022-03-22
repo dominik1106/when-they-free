@@ -1,7 +1,9 @@
+import sched
+from typing import List
 from fastapi.encoders import jsonable_encoder
 
 from .database import collection
-from .schemas import Schedule, Participant, combinedTimes
+from .schemas import Schedule, Participant, TimeFrame, combinedTimes
 
 def get_schedule(schedule_id: str):
     #This returns a regular python dict
@@ -21,22 +23,23 @@ def create_schedule(owner: str):
     collection.insert_one(schedule_json)
     return schedule
 
-def update_schedule(schedule_id: str, participant: Participant):
+def update_schedule(schedule_id: str, busy_times: List[TimeFrame], participant: str):
     result = collection.find_one({'_id': schedule_id})
     if result is not None:
         #Check if participant is updating his own schedule
         schedule = Schedule(**result)
         for p in schedule.participants:
-            if p.participant_id == participant.participant_id:
-                print('found the right participant!')
-                p.busy_times = participant.busy_times
+            if p.participant_id == participant:
+                p.busy_times = busy_times
+
+        #TODO what if current user isn't part of schedule
 
         schedule = combinedTimes(schedule=schedule)
+        temp = schedule
 
         schedule = jsonable_encoder(schedule)
-        print(schedule)
         collection.update_one({'_id': schedule_id}, {'$set': schedule})
-        return 'success'
+        return temp
     
     else: #TODO Error handling
         raise 404

@@ -1,8 +1,9 @@
+from typing import List
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from users.database import get_db
 import users.crud, users.schemas
-import schedules.crud
+import schedules.crud, schedules.schemas
 from fastapi.security import OAuth2PasswordRequestForm
 from security import authenticate_user, create_JWT, get_user
 
@@ -30,10 +31,10 @@ def get_schedule(schedule_id, current_user: users.schemas.User = Depends(get_use
             return schedule
     return {'error': 'Not a participant'}
 
-@app.put('/schedule/{schedule_id}')
-def update_schedule(schedule_id: str, participant: schedules.crud.Participant, current_user: users.schemas.User  = Depends(get_user)):
-    result = schedules.crud.update_schedule(schedule_id=schedule_id, participant=participant)
-    return {'Message': 'Updated'}
+# TODO just pass the busy times as a array, convert them to timeframes, use current_user
+@app.put('/schedule/{schedule_id}', response_model=schedules.crud.Schedule)
+def update_schedule(schedule_id: str, busy_times: List[schedules.schemas.TimeFrame], current_user: users.schemas.User  = Depends(get_user)):
+    return schedules.crud.update_schedule(schedule_id, busy_times, current_user.id)
 
 @app.post('/token')
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
