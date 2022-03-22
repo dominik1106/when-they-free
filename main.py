@@ -7,7 +7,7 @@ import mongodb_schedule, crud_schedule
 from crud_schedule import Participant, create_schedule
 from fastapi.security import OAuth2PasswordRequestForm
 
-from security import authenticate_user, create_JWT
+from security import authenticate_user, create_JWT, get_user
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -47,7 +47,7 @@ def update_schedule(schedule_id: str, participant: Participant):
     result = crud_schedule.update_schedule(schedule_id=schedule_id, participant=participant)
     return {'Message': 'Updated'}
 
-@app.post('/login')
+@app.post('/token')
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user: schemas.User = authenticate_user(db, form_data.username, form_data.password)
     if not user:
