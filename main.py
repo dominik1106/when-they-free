@@ -1,8 +1,9 @@
 from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
-import crud_user, models, schemas
-from database import SessionLocal, engine, get_db
+from users import models, schemas
+from users.database import SessionLocal, engine, get_db
+import users.crud as crud_users
 import mongodb_schedule, crud_schedule
 from crud_schedule import Participant, create_schedule
 from fastapi.security import OAuth2PasswordRequestForm
@@ -18,7 +19,7 @@ async def root():
 
 @app.post('/user', response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    return crud_user.create_user(db=db, user=user)
+    return crud_users.create_user(db=db, user=user)
 
 
 @app.post('/schedule', response_model=crud_schedule.Schedule)

@@ -10,9 +10,9 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 
-import crud_user
+import users.crud as crud_users
 from sqlalchemy.orm import Session
-from database import get_db
+from users.database import get_db
 
 load_dotenv()
 JWT_SECRET = os.environ.get('JWT_SECRET')
@@ -32,14 +32,11 @@ class TokenData(BaseModel):
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
-def hash_password(password):
-    return pwd_context.hash(password)
-
 
 ### LOGIN
 # First confirm that User has account & password is correct
 def authenticate_user(db, email: str, password: str):
-    user = crud_user.get_user_by_email(db=db, email=email)
+    user = crud_users.get_user_by_email(db=db, email=email)
     if user is None:
         return False
     if not verify_password(password, user.hashed_password):
@@ -75,7 +72,7 @@ async def get_user(token: str = Depends(oauth2_scheme), db: Session = Depends(ge
         token_data = TokenData(user_id=user_id)
     except JWTError:
         raise credentials_exception
-    user = crud_user.get_user(db=db, uuid=token_data.user_id)
+    user = crud_users.get_user(db=db, uuid=token_data.user_id)
     if user is None:
         raise credentials_exception
 
