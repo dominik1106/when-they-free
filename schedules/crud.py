@@ -1,8 +1,7 @@
-from unittest import result
-from mongodb_schedule import collection
 from fastapi.encoders import jsonable_encoder
-from schemas_schedule import Schedule, Participant, TimeFrame
-import schemas_schedule
+
+from .database import collection
+from .schemas import Schedule, Participant, combinedTimes
 
 def get_schedule(schedule_id: str):
     #This returns a regular python dict
@@ -32,7 +31,7 @@ def update_schedule(schedule_id: str, participant: Participant):
                 print('found the right participant!')
                 p.busy_times = participant.busy_times
 
-        schedule = schemas_schedule.combinedTimes(schedule=schedule)
+        schedule = combinedTimes(schedule=schedule)
 
         schedule = jsonable_encoder(schedule)
         print(schedule)

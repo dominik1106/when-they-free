@@ -60,14 +60,6 @@ class Schedule(BaseModel):
 class UpdateSchedule(BaseModel):
     participants: Optional[Participant]
 
-# def sortTimeFrames(item1: TimeFrame, item2: TimeFrame):
-#     if item1.begin < item2.begin:
-#         return -1
-#     elif item1.begin > item2.begin:
-#         return 1
-#     else: 
-#         return 0
-
 def combinedTimes(schedule: Schedule):
     combinedList: List[TimeFrame] = []
 
