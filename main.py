@@ -28,22 +28,25 @@ def get_db():
 async def root():
     return {'message': 'Hello World!'}
 
-@app.post('/create-user', response_model=schemas.User)
+@app.post('/user', response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud_user.create_user(db=db, user=user)
 
 
-@app.get('/schedules/{schedule_id}', response_model=crud_schedule.Schedule)
-def get_schedule(schedule_id):
-    return crud_schedule.get_schedule(schedule_id=schedule_id)
+@app.post('/schedule', response_model=crud_schedule.Schedule)
+def create_post(current_user: schemas.User  = Depends(get_user)):
+    return crud_schedule.create_schedule(owner=current_user.id)
 
-@app.post('/create-schedule', response_model=crud_schedule.Schedule)
-def create_post(owner: str):
-    return crud_schedule.create_schedule(owner=owner)
+@app.get('/schedules/{schedule_id}', response_model=crud_schedule.Schedule)
+def get_schedule(schedule_id, current_user: schemas.User  = Depends(get_user)):
+    schedule = crud_schedule.get_schedule(schedule_id=schedule_id)
+    for participant in schedule.participants:
+        if participant.participant_id == current_user.id:
+            return schedule
+    return {'error': 'Not a participant'}
 
 @app.put('/schedule/{schedule_id}')
-def update_schedule(schedule_id: str, participant: Participant):
-    print('test')
+def update_schedule(schedule_id: str, participant: Participant, current_user: schemas.User  = Depends(get_user)):
     result = crud_schedule.update_schedule(schedule_id=schedule_id, participant=participant)
     return {'Message': 'Updated'}
 
