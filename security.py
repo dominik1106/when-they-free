@@ -1,14 +1,18 @@
-from datetime import datetime, timedelta
 import os
 from dotenv import load_dotenv
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from sqlalchemy.orm import Session
+
 import crud_user
+from sqlalchemy.orm import Session
+from database import get_db
 
 load_dotenv()
 JWT_SECRET = os.environ.get('JWT_SECRET')
@@ -57,7 +61,7 @@ def create_JWT(data: dict, expires_delta: Optional[int] = timedelta(minutes=ACCE
 ### ROUTE SECURITY
 # Called whenever secured Route
 # Also provides information such as email & uuid about current user
-async def get_user(db, token: str = Depends(oauth2_scheme)):
+async def get_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

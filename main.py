@@ -2,26 +2,14 @@ from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 import crud_user, models, schemas
-from database import SessionLocal, engine
+from database import SessionLocal, engine, get_db
 import mongodb_schedule, crud_schedule
 from crud_schedule import Participant, create_schedule
 from fastapi.security import OAuth2PasswordRequestForm
 
 from security import authenticate_user, create_JWT, get_user
 
-
-models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
-
-
-def get_db():
-    db = SessionLocal()
-    try: 
-        yield db
-    #TODO Except: Error handling
-    finally:
-        db.close()
 
 
 @app.get('/')
