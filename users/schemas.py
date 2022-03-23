@@ -9,6 +9,7 @@ class UserCreate(UserBase):
 class UserFull(UserBase):
     hashed_password: str
     id: str
+    email_code: str
 
     class Config:
         orm_mode = True
