@@ -27,10 +27,13 @@ def create_post(current_user: users.schemas.User = Depends(get_user)):
 @app.get('/schedules/{schedule_id}', response_model=schedules.crud.Schedule)
 def get_schedule(schedule_id, current_user: users.schemas.User = Depends(get_user)):
     schedule = schedules.crud.get_schedule(schedule_id=schedule_id)
-    for participant in schedule.participants:
-        if participant.participant_id == current_user.id:
-            return schedule
-    return {'error': 'Not a participant'}
+    if current_user.id in schedule.participants:
+        return schedule
+    raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not a member of this Schedule",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 # TODO just pass the busy times as a array, convert them to timeframes, use current_user
 @app.put('/schedule/{schedule_id}', response_model=schedules.crud.Schedule)
