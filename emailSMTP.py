@@ -38,3 +38,5 @@ def send_confirmation_email(receiver: str, code: str):
     with smtplib.SMTP_SSL(SMTP_ADRESS, SSL_PORT, context=context) as server:
         server.login(EMAIL_ADRESS, EMAIL_PASSWORD)
         server.sendmail(EMAIL_ADRESS, receiver, message.as_string())
+    
+    return ''

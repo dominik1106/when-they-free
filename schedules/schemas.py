@@ -1,9 +1,9 @@
 from sqlite3 import Time
 from typing import Optional, List
-from wsgiref.validate import validator
 from fastapi import HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from bson import ObjectId
+import pydantic
 from sqlalchemy import false
 
 

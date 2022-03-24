@@ -1,3 +1,4 @@
+import imp
 from typing import List
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
@@ -8,7 +9,7 @@ from users.database import engine
 import schedules.crud, schedules.schemas
 from fastapi.security import OAuth2PasswordRequestForm
 from security import authenticate_user, create_JWT, get_user
-from .email import send_confirmation_email
+from emailSMTP import send_confirmation_email
 
 app = FastAPI()
 
@@ -56,7 +57,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
 @app.post('/user', response_model=users.schemas.User)
 def create_user(user: users.schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     _user =  users.crud.create_user(db=db, user=user)
-    background_tasks.add_task(send_confirmation_email(_user.email, _user.email_hash))
+    #background_tasks.add_task(send_confirmation_email(_user.email, _user.email_hash))
     return _user
 
 @app.get('/verify/{hash}')

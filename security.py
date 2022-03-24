@@ -41,7 +41,9 @@ def authenticate_user(db, email: str, password: str):
         return False
     if not verify_password(password, user.hashed_password):
         return False
-    return user.activated
+    if not user.activated:
+        return False
+    return user
 
 # Then generate a JWT token which contains the uuid and is valid for ACCESS_TOKEN_EXPIRE_MINUTES (30)
 def create_JWT(data: dict, expires_delta: Optional[int] = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
