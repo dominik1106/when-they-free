@@ -1,5 +1,7 @@
 from sqlite3 import Time
 from typing import Optional, List
+from wsgiref.validate import validator
+from fastapi import HTTPException, status
 from pydantic import BaseModel, Field
 from bson import ObjectId
 from sqlalchemy import false
@@ -20,8 +22,16 @@ class PyObjectId(ObjectId):
 
 
 class TimeFrame(BaseModel):
-    begin: float = Field(ge=0, le=168,)
-    end: float = Field(ge=0, le=168)
+    begin: float = Field(ge=0, le=167.5,)
+    end: float = Field(ge=0.5, le=168)
+
+    @validator('end')
+    def timeframe_must_be_longer_than_30_minutes(cls, v, values, **kwargs):
+        if 'begin' in values and (v-values['begin']) < 0.5:
+            raise ValueError('timeframe must be atleast than 30 minutes')
+        return v
+
+
 
 class Participant(BaseModel):
     participant_id: str
@@ -75,6 +85,12 @@ def combinedTimes(schedule: Schedule):
         ordered = True
         combinedList.sort(key=lambda x: x.begin)
         while True:
+            if (combinedList[i].end - combinedList[i].begin) <= 0.5:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="The minimum length for a timeframe are 30min",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
             if i == len(combinedList)-1:
                 break
             elif combinedList[i].end >= combinedList[i+1].begin:
